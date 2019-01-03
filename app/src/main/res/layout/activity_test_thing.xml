@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    tools:context=".TestThing">
+    tools:context="com.johngiorshev.encircled.TestThing">
     <!--Shouldn't be set, since the background custom drawing will be blocked.
     Use for more easily showing the views in the design mode
     android:background="#000000"
