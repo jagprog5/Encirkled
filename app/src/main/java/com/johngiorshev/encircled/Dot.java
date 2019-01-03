@@ -82,22 +82,14 @@ public class Dot {
     }
 
     public void draw(Canvas c) {
-        //draw lines in reverse order, so newest is on top
-//        for (int i = pastX.length - 1; i > 0; i--) {
-//            c.drawLine(pastX[i], pastY[i], pastX[i-1], pastY[i-1], getColorInTail(i - 1));
-//        }
-
         // drawing is completed backwards, since the start of the trail needs to be on top
 
         int len = pastX.length;
 
-        // End of trail. No curve needed
+        // End of trail. No curve.
         c.drawLine(pastX[len-2], pastY[len-2], pastX[len-1], pastY[len-1], getColorInTail(len - 1));
-
-        // Iterate backwards, and ignore first and last curve segments
-
-        float dampener = 2;
-
+        // Iterate backwards, and ignore first segment (drawn in line above)
+        float dampener = 5f; // Increase to make curve more rigid. Decrease to make more fluid
         float prevLeadControlX = (pastX[len-1] - pastX[len-2]) / dampener;
         float prevLeadControlY = (pastY[len-1] - pastY[len-2]) / dampener;
         for (int i = len - 2; i > 0; i--) {
@@ -115,12 +107,6 @@ public class Dot {
             prevLeadControlY = leadControlY;
             c.drawPath(p, getColorInTail(i - 1));
         }
-
-        // Start of trail. No curve needed
-//        c.drawLine(pastX[0], pastY[0], pastX[1], pastY[1], getColorInTail(0));
-
-
-
     }
 
     public void setPosition(float x, float y) {
