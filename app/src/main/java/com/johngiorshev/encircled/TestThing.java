@@ -60,7 +60,7 @@ public class TestThing extends Activity {
     }
 
     class BackgroundView extends View {
-        static final int FPS = 60;
+        static final int FPS = 5;//60;
         long lastUpdateTime = -1;
         long newUpdateTime = -1;
         Dot d;

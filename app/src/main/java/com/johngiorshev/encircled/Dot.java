@@ -3,6 +3,7 @@ package com.johngiorshev.encircled;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.util.Log;
 
 import java.util.Random;
@@ -32,6 +33,7 @@ public class Dot {
 
     // color properties at end of tail
     // Generally alpha final value should be 0, for the trail to fade off.
+    // This color will be approached, but not reached.
     private int af;
     private int rf;
     private int gf;
@@ -69,9 +71,11 @@ public class Dot {
             targetX = r.nextInt(c.getWidth());
             targetY = r.nextInt(c.getHeight());
         }
-        targetX += GameMath.nextFloat(-50, 50);
-        targetY += GameMath.nextFloat(-50, 50);
-        float[] diff = GameMath.projectileSpeed(getX(), getY(), targetX, targetY, 20);
+
+        int jitter = 200;//50;
+        targetX += GameMath.nextFloat(-jitter, jitter);
+        targetY += GameMath.nextFloat(-jitter, jitter);
+        float[] diff = GameMath.projectileSpeed(getX(), getY(), targetX, targetY, 200);//20);
         setPosition(getX() + diff[0] * timeDelta,
                 getY() + diff[1] * timeDelta);
         draw(c);
@@ -79,9 +83,44 @@ public class Dot {
 
     public void draw(Canvas c) {
         //draw lines in reverse order, so newest is on top
-        for (int i = pastX.length - 1; i > 0; i--) {
-            c.drawLine(pastX[i], pastY[i], pastX[i-1], pastY[i-1], getColorInTail(i - 1));
+//        for (int i = pastX.length - 1; i > 0; i--) {
+//            c.drawLine(pastX[i], pastY[i], pastX[i-1], pastY[i-1], getColorInTail(i - 1));
+//        }
+
+        // drawing is completed backwards, since the start of the trail needs to be on top
+
+        int len = pastX.length;
+
+        // End of trail. No curve needed
+        c.drawLine(pastX[len-2], pastY[len-2], pastX[len-1], pastY[len-1], getColorInTail(len - 1));
+
+        // Iterate backwards, and ignore first and last curve segments
+
+        float dampener = 2;
+
+        float prevLeadControlX = (pastX[len-1] - pastX[len-2]) / dampener;
+        float prevLeadControlY = (pastY[len-1] - pastY[len-2]) / dampener;
+        for (int i = len - 2; i > 0; i--) {
+            Path p = new Path();
+            //[i] is the lagging point. [i-1] is the leading point
+            p.moveTo(pastX[i], pastY[i]);
+            float leadControlX = (pastX[i] - pastX[i-1]) / dampener;
+            float leadControlY = (pastY[i] - pastY[i-1]) / dampener;
+            p.cubicTo(pastX[i] - prevLeadControlX,
+                    pastY[i] - prevLeadControlY,
+                    pastX[i-1] + leadControlX,
+                    pastY[i-1] + leadControlY,
+                    pastX[i-1], pastY[i-1]);
+            prevLeadControlX = leadControlX;
+            prevLeadControlY = leadControlY;
+            c.drawPath(p, getColorInTail(i - 1));
         }
+
+        // Start of trail. No curve needed
+//        c.drawLine(pastX[0], pastY[0], pastX[1], pastY[1], getColorInTail(0));
+
+
+
     }
 
     public void setPosition(float x, float y) {
@@ -104,7 +143,7 @@ public class Dot {
         Paint p = new Paint();
         p.setStrokeWidth(size);
         p.setStrokeCap(pastIndex == 0 ? Paint.Cap.ROUND : Paint.Cap.BUTT);
-
+        p.setStyle(Paint.Style.STROKE);
         p.setStrokeJoin(Paint.Join.ROUND);
 
         float prog = (float)pastIndex / pastX.length;
