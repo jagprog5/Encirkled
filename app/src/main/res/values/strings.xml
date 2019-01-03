@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Encirkled</string>
+    <string name="options">Options</string>
+    <string name="credits">Credits</string>
+    <string name="game_modes">Game Modes</string>
+
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+</resources>
