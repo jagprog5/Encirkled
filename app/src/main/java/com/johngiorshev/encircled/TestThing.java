@@ -60,19 +60,23 @@ public class TestThing extends Activity {
     }
 
     class BackgroundView extends View {
-        static final int FPS = 5;//60;
+        static final int FPS = 60;
         long lastUpdateTime = -1;
         long newUpdateTime = -1;
-        Dot d;
+        Dot[] d;
         boolean paintSet = false;
         Paint p = new Paint();
 
         public BackgroundView(Context context) {
             super(context);
-            d = new Dot(100, 100,
-                    255, 255, 0, 0,
-                    0, 0, 255, 255,
-                    30, 40);
+            d = new Dot[10];
+            for (int i = 0; i < d.length; i++) {
+                // Initialize random dots
+                 d[i] = new Dot(100, 100,
+                        255, GameMath.random.nextInt(255), GameMath.random.nextInt(255), GameMath.random.nextInt(255),
+                        0, GameMath.random.nextInt(255), GameMath.random.nextInt(255), GameMath.random.nextInt(255),
+                         (int)GameMath.nextFloat(20, 40), (int)GameMath.nextFloat(30, 50));
+            }
         }
 
         @Override
@@ -92,7 +96,9 @@ public class TestThing extends Activity {
 
             float timeDelta = (newUpdateTime - lastUpdateTime) / (1000f / FPS);
 
-            d.update(canvas, timeDelta);
+            for (Dot dd : d) {
+                dd.update(canvas, timeDelta);
+            }
 
             postInvalidateDelayed(1000 / FPS);
 

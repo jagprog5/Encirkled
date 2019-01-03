@@ -72,10 +72,10 @@ public class Dot {
             targetY = r.nextInt(c.getHeight());
         }
 
-        int jitter = 200;//50;
+        int jitter = 50;
         targetX += GameMath.nextFloat(-jitter, jitter);
         targetY += GameMath.nextFloat(-jitter, jitter);
-        float[] diff = GameMath.projectileSpeed(getX(), getY(), targetX, targetY, 200);//20);
+        float[] diff = GameMath.projectileSpeed(getX(), getY(), targetX, targetY, 20);
         setPosition(getX() + diff[0] * timeDelta,
                 getY() + diff[1] * timeDelta);
         draw(c);
