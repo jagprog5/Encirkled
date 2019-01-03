@@ -45,6 +45,7 @@ public class TestThing extends Activity {
         RelativeLayout relLayout = new RelativeLayout(this);
         relLayout.setBackgroundColor(Color.BLACK);
 
+        // null is fine. Layout params set manually
         View xmlv = getLayoutInflater().inflate(R.layout.activity_test_thing,
                 null);
         xmlv.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -60,41 +61,38 @@ public class TestThing extends Activity {
 
     class BackgroundView extends View {
         static final int FPS = 60;
-        private float incre;
         long lastUpdateTime = -1;
         long newUpdateTime = -1;
-        Paint paint;
+        Dot d;
+        boolean paintSet = false;
+        Paint p = new Paint();
 
         public BackgroundView(Context context) {
             super(context);
-            paint = new Paint();
-            paint.setColor(Color.parseColor("#CD5C5C"));
+            d = new Dot(100, 100,
+                    255, 255, 0, 0,
+                    0, 0, 255, 255,
+                    30, 40);
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-
             newUpdateTime = System.currentTimeMillis();
             if (lastUpdateTime == -1) {
                 lastUpdateTime = newUpdateTime;
             }
 
-//            Log.i("DRAW EVENT", "onDraw!");
             super.onDraw(canvas);
-            Paint p = new Paint();
-            // start at 0,0 and go to 0,max to use a vertical
-            // gradient the full height of the screen.
-            p.setShader(new LinearGradient(0, 0, 0, getHeight(), Color.BLACK, Color.GRAY, Shader.TileMode.MIRROR));
+            if (!paintSet) {
+                p.setShader(new LinearGradient(0, 0, 0, getHeight(), Color.BLACK,
+                        Color.GRAY, Shader.TileMode.MIRROR));
+                paintSet = true;
+            }
             canvas.drawPaint(p);
 
             float timeDelta = (newUpdateTime - lastUpdateTime) / (1000f / FPS);
 
-            incre += 5 * timeDelta;
-
-            canvas.drawCircle(80 + incre, 120, 50, paint);
-            if (incre > getWidth()) {
-                incre = 0;
-            }
+            d.update(canvas, timeDelta);
 
             postInvalidateDelayed(1000 / FPS);
 
